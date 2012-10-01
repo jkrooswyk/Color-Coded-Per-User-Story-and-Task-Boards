@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color by User Story Board</title>
+    <meta name="Name" content="Color by User Story Board" />
+    <meta name="Version" content="1.0" />
+    <meta name="Vendor" content="Rally Software" />
+    <meta name="Author" content="Joel K" />
+
+    <!-- TO CHANGE COLORS FOR EACH USER OR TO ASSIGN USERS TO A COLOR:-->
+    <!-- 1. Go to the bottom of this code to the list of names and colors.-->
+    <!-- 2. Replace each name with a valid Display Name from Rally (not login ID, but Display Name).-->
+    <!-- 3. Change colors if desired.  Values of Hex (enter as #FFAA03) or color codes are accepted.-->
+    <!--    Color codes for HTML can be found here: http://www.w3schools.com/html/html_colornames.asp-->
+    <!-- RETAIN THE .none NAME IN ANY CASE! -->
+
+    <script type="text/javascript" src="/apps/2.0p/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function() {
+
+            Ext.define('ColorCodedStoryCard', {
+                extend: 'Rally.ui.cardboard.ArtifactCard',
+                alias: 'widget.colorcodedstorycard',
+                inheritableStatics: {
+                    getAdditionalFetchFields: function() {
+                        return ['Owner', 'FormattedID', 'Estimate', 'State', 'ToDo'];
+                    }
+                },
+                buildHeader: function(){
+                    var header = this.callParent(arguments);
+                    var priority = this.getRecord().get("Owner");
+                    if (priority===null) {
+                        priority = "none";
+                    } else {
+                        priority = priority._refObjectName;
+                    };                    
+                    header.addCls(priority);
+                    return header;
+                }
+            });
+
+            Ext.define('CustomApp', {
+                extend: 'Rally.app.App',
+                componentCls: 'app',
+
+                launch: function() {
+                    this.iterationCombobox = this.add({
+                        xtype: 'rallyiterationcombobox',
+                        listeners: {
+                            change: this._onIterationComboboxChanged,
+                            ready: this._onIterationComboboxLoad,
+                            scope: this
+                        }
+                    });
+                },
+
+                _onIterationComboboxLoad: function() {
+                    var addNewConfig = {
+                        xtype: 'rallyaddnew',
+                        recordTypes: ['Story'],
+                        ignoredRequiredFields: ['Name', 'State', 'WorkProduct', 'Project'],
+                        showAddWithDetails: false,
+                        newButtonText: 'Add New Story',
+                        listeners: {
+                            beforerecordadd: this._onBeforeRecordAdd,
+                            recordadd: this._onRecordAdd,
+                            scope: this
+                        }
+                    };
+
+                    this.addNew = this.add(addNewConfig);
+
+                    var cardBoardConfig = {
+                        xtype: 'rallycardboard',
+                        types: ['Story'],
+                        attribute: 'ScheduleState',
+                        storeConfig: {
+                            filters: [this.iterationCombobox.getQueryFromSelected()]
+                        },
+                        cardConfig: {
+                                xtype: 'colorcodedstorycard'
+                        }
+                    };
+                    this.cardBoard = this.add(cardBoardConfig);       
+                },
+
+                _onBeforeRecordAdd: function(addNewComponent, eventArgs) {
+                    eventArgs.record.set('Iteration', this.iterationCombobox.getValue());
+                },
+
+                _onRecordAdd: function() {
+                    this.cardBoard.refresh();
+                },
+
+                _onIterationComboboxChanged: function() {
+                    var config = {
+                        storeConfig: {
+                            filters: [this.iterationCombobox.getQueryFromSelected()]
+                        }
+                    };
+
+                    this.cardBoard.refresh(config);
+                }
+            });
+
+            Rally.launchApp('CustomApp', {
+                name: 'Color By User Story Board'
+            });
+        });
+    </script>
+
+        <!-- Color chart for below color options (or use #hex values) can be found here:-->
+        <!-- http://www.w3schools.com/html/html_colornames.asp-->
+        
+    <style type="text/css">
+        .app {
+            margin: 20px;
+        }      
+        .Dave{
+            background-color: LightGreen !Important;
+        }
+        .Paul{
+            background-color: DarkGray !Important;
+        }
+        .Beth{
+            background-color: PaleGoldenRod !Important;
+        }
+        .Sara{
+            background-color: AliceBlue !Important;
+        }
+        .Dudley{
+            background-color: Orange !Important;
+        }
+        .Wendy{
+            background-color: Beige !Important;
+        }
+        .Tom{
+            background-color: Chocolate !Important;
+        }
+        .Tony{
+            background-color: DarkKhaki !Important;
+        }
+        .none {
+            background-color: White !Important;
+        }
+
+    </style>
+  
+</head>
+<body></body>
+</html>
