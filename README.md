@@ -8,7 +8,7 @@ To use the apps, simply edit the bottom of the code to include the user names of
 See the header of the actual code for details.
 
 Story Board Screenshot:<P>
-![Alt text](https://github.com/jkrooswyk/Color-Coded-Per-User-Story-and-Task-Boards/raw/master/ColorbyUserStoryBoardscreenshot.png)
+![Alt text](https://github.com/jkrooswyk/Color-Coded-Per-User-Story-and-Task-Boards/raw/master/Color by User Story Board screenshot.png)
 
 Task Board Screenshot:<P>
-![Alt text](https://github.com/jkrooswyk/Color-Coded-Per-User-Story-and-Task-Boards/raw/master/ColorbyUserTaskBoardscreenshot.png)
+![Alt text](https://github.com/jkrooswyk/Color-Coded-Per-User-Story-and-Task-Boards/raw/master/Color by User Task Board screenshot.png)
