@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color by User Story Board NO NAME REQUIREMENTS</title>
+    <meta name="Name" content="Color by User Story Board - No Name Requirements" />
+    <meta name="Version" content="1.2" />
+    <meta name="Vendor" content="Rally Software" />
+    <meta name="Author" content="Joel K" />
+
+    <!--    Color codes for HTML can be found here: http://www.w3schools.com/html/html_colornames.asp-->
+
+    <script type="text/javascript" src="/apps/2.0p/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function() {
+
+        var prioritycount = 0;
+        var userarray =[];
+        var ownernumber = 0;
+
+            Ext.define('ColorCodedStoryCard', {
+                extend: 'Rally.ui.cardboard.ArtifactCard',
+                alias: 'widget.colorcodedstorycard',
+                inheritableStatics: {
+                    getAdditionalFetchFields: function() {
+                        return ['Owner', 'FormattedID', 'PlanEstimate', 'State'];
+                    }
+                },
+                buildHeader: function(){
+                    var header = this.callParent(arguments);
+
+                    //pull usernames, set nulls to "none"
+                    var ownername = this.getRecord().get("Owner");
+                    if (ownername===null) {
+                        ownername = "none";
+                    } else {
+                        ownername = ownername._refObjectName;
+                    };                    
+                    
+                    //match name to number if existing, else add new name to array
+                    var usercount = userarray.length
+                    var match = 0;
+                    for (var counter = 0; counter < usercount; counter++) {
+                        if (ownername == userarray[counter]) {
+                            ownernumber = counter;
+                            match = 1;
+                        }
+                    }
+                    if (match == 0) {
+                        userarray.push(ownername);
+                        ownernumber = userarray.length - 1;
+                    }
+                    header.addCls("color" + ownernumber);
+                    return header;
+                }
+            });
+
+            Ext.define('CustomApp', {
+                extend: 'Rally.app.App',
+                componentCls: 'app',
+
+                launch: function() {
+                    this.iterationCombobox = this.add({
+                        xtype: 'rallyiterationcombobox',
+                        listeners: {
+                            change: this._onIterationComboboxChanged,
+                            ready: this._onIterationComboboxLoad,
+                            scope: this
+                        }
+                    });
+                },
+
+                _onIterationComboboxLoad: function() {
+                    var addNewConfig = {
+                        xtype: 'rallyaddnew',
+                        recordTypes: ['Story'],
+                        ignoredRequiredFields: ['Name', 'State', 'WorkProduct', 'Project'],
+                        showAddWithDetails: false,
+                        newButtonText: 'Add New Story',
+                        listeners: {
+                            beforerecordadd: this._onBeforeRecordAdd,
+                            recordadd: this._onRecordAdd,
+                            scope: this
+                        }
+                    };
+
+                    this.addNew = this.add(addNewConfig);
+
+                    var cardBoardConfig = {
+                        xtype: 'rallycardboard',
+                        types: ['Story'],
+                        attribute: 'ScheduleState',
+                        storeConfig: {
+                            filters: [this.iterationCombobox.getQueryFromSelected()]
+                        },
+                        cardConfig: {
+                                xtype: 'colorcodedstorycard'
+                        }
+                    };
+                    this.cardBoard = this.add(cardBoardConfig);       
+                },
+
+                _onBeforeRecordAdd: function(addNewComponent, eventArgs) {
+                    eventArgs.record.set('Iteration', this.iterationCombobox.getValue());
+                },
+
+                _onRecordAdd: function() {
+                    this.cardBoard.refresh();
+                },
+
+                _onIterationComboboxChanged: function() {
+                    var config = {
+                        storeConfig: {
+                            filters: [this.iterationCombobox.getQueryFromSelected()]
+                        }
+                    };
+
+                    this.cardBoard.refresh(config);
+                }
+            });
+
+            Rally.launchApp('CustomApp', {
+                name: 'Color By User Story Board'
+            });
+        });
+    </script>
+
+        <!-- Color chart for below color options (or use #hex values) can be found here:-->
+        <!-- http://www.w3schools.com/html/html_colornames.asp-->
+        
+    <style type="text/css">
+        .app {
+            margin: 20px;
+        }      
+        .color0{
+            background-color: LightGreen !Important;
+        }
+        .color1{
+            background-color: DarkGray !Important;
+        }
+        .color2{
+            background-color: PaleGoldenRod !Important;
+        }
+        .color3{
+            background-color: AliceBlue !Important;
+        }
+        .color4{
+            background-color: Orange !Important;
+        }
+        .color5{
+            background-color: Beige !Important;
+        }
+        .color6{
+            background-color: Chocolate !Important;
+        }
+        .color7{
+            background-color: DarkKhaki !Important;
+        }
+        .color8{
+            background-color: DarkSeaGreen  !Important;
+        }
+        .color9{
+            background-color: DodgerBlue  !Important;
+        }
+        .color10{
+            background-color: White !Important;
+        }
+    </style>
+  
+</head>
+<body></body>
+</html>
